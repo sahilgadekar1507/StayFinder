@@ -1,40 +1,25 @@
-import bcrypt from "bcryptjs";
-
 import User from "../models/user.model.js";
-import { ApiError } from "../utils/ApiError.js";
+import ApiError from "../utils/ApiError.js";
 
-const registerUser = async (
+const registerUser = async (username, email, password) => {
+  const existingUser = await User.findOne({
+    email,
+  });
+
+  if (existingUser) {
+    throw new ApiError(409, "User already exists");
+  }
+
+  const user = await User.create({
     username,
     email,
-    password
-) => {
+    password,
+  });
 
-    const existingUser =
-        await User.findOne({
-            email
-        });
+  const createdUser = await User.findById(user._id)
+    .select("-password");
 
-    if (existingUser) {
-        throw new ApiError(
-            409,
-            "User already exists"
-        );
-    }
-
-    const hashedPassword =
-        await bcrypt.hash(
-            password,
-            10
-        );
-
-    const user =
-        await User.create({
-            username,
-            email,
-            password: hashedPassword
-        });
-
-    return user;
+  return createdUser;
 };
 
 export { registerUser };
