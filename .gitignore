@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+
+# Build folders
+dist/
+build/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Vite
+frontend/dist/
+
+# Backend uploads (if storing locally)
+backend/uploads/
+
+Backend/node_modules/
+Frontend/node_modules/
+
+Backend/.env
+
+Frontend/dist/
