@@ -3,9 +3,7 @@ import cookieOptions from "../utils/cookieOptions.js";
 import ApiError from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ACCESS_TOKEN_COOKIE } from "../constants/auth.constants.js";
-
 import { registerUser, loginUser } from "../services/auth.service.js";
-
 import { registerSchema, loginSchema } from "../validators/auth.validator.js";
 
 export const signup = asyncHandler(async (req, res) => {
@@ -25,33 +23,39 @@ export const signup = asyncHandler(async (req, res) => {
 });
 
 export const login = asyncHandler(async (req, res) => {
-    const { error } = loginSchema.validate(req.body);
+  const { error } = loginSchema.validate(req.body);
 
-    if (error) {
-        throw new ApiError(400, error.details[0].message);
-    }
+  if (error) {
+    throw new ApiError(400, error.details[0].message);
+  }
 
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    const { user, accessToken } = await loginUser(
-        email,
-        password
+  const { user, accessToken } = await loginUser(email, password);
+
+  return res
+    .status(200)
+    .cookie(ACCESS_TOKEN_COOKIE, accessToken, cookieOptions)
+    .json(
+      new ApiResponse(
+        200,
+        {
+          user,
+        },
+        "Login successful",
+      ),
     );
+});
 
-    return res
-        .status(200)
-        .cookie(
-            ACCESS_TOKEN_COOKIE,
-            accessToken,
-            cookieOptions
-        )
-        .json(
-            new ApiResponse(
-                200,
-                {
-                    user
-                },
-                "Login successful"
-            )
-        );
+export const logout = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .clearCookie(ACCESS_TOKEN_COOKIE, cookieOptions)
+    .json(new ApiResponse(200, {}, "Logged out successfully"));
+});
+
+export const getCurrentUser = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
 });
